@@ -1388,7 +1388,13 @@ dhcp_release(struct netif *netif)
 void
 dhcp_stop(struct netif *netif)
 {
-  dhcp_release_and_stop(netif);
+//  dhcp_release_and_stop(netif);
+// Modified to only stop dhcp (i.e. release memory) and NOT release the lease.
+  struct dhcp *dhcp = netif_dhcp_data(netif);
+  if (dhcp && dhcp->pcb_allocated != 0) {
+    dhcp_dec_pcb_refcount(); /* free DHCP PCB if not needed any more */
+    dhcp->pcb_allocated = 0;
+  }
 }
 
 /*
